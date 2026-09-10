@@ -1,6 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from launch.actions import SetEnvironmentVariable
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
@@ -10,6 +11,7 @@ def generate_launch_description():
     pkg_name = 'my_turtlebot_pkg'
     pkg_path = get_package_share_directory(pkg_name)
     xacro_file = os.path.join(pkg_path, 'urdf', 'turtlebot.urdf.xacro')
+    world_path = os.path.join(pkg_path, 'worlds', 'room_world.sdf')
 
     robot_description_raw = xacro.process_file(xacro_file).toxml()
     
@@ -25,7 +27,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')
         ),
-        launch_arguments={'gz_args': '-r empty.sdf'}.items(),
+         launch_arguments={'gz_args': f'-r {world_path}'}.items(),
     )
 
     spawn_entity = Node(
@@ -47,8 +49,12 @@ def generate_launch_description():
     parameters=[{'config_file': bridge_config}],
     output='screen'
           )
-
+    set_gz_resource_path = SetEnvironmentVariable(
+    name='GZ_SIM_RESOURCE_PATH',
+    value=os.path.join(pkg_path, '..')
+    )
     return LaunchDescription([
+        set_gz_resource_path,
         node_robot_state_publisher,
         gazebo,
         spawn_entity,

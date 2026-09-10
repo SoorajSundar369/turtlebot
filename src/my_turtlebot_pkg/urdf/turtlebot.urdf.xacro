@@ -184,12 +184,22 @@
   <xacro:macro name="motor" params="prefix reflect">
   <link name="${prefix}_motor_link">
     <visual>
-      <origin xyz="0.0155 ${reflect * -0.018} 0" rpy="0 ${PI if reflect == -1 else 0} ${0 if reflect == -1 else PI}"/>
+      <origin xyz="0.0455 ${reflect * -0.018} 0" rpy="0 ${PI if reflect == -1 else 0} ${0 if reflect == -1 else PI}"/>
       <geometry>
         <mesh filename="package://my_turtlebot_pkg/meshes/n20motor_centered.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="wheel_black"/>
     </visual>
+    <!-- Collision -->
+    <collision>
+      <origin xyz="0.0455 ${reflect * -0.018} 0"
+              rpy="0 ${PI if reflect == -1 else 0} ${0 if reflect == -1 else PI}"/>
+      <geometry>
+        <mesh filename="package://my_turtlebot_pkg/meshes/n20motor_centered.stl"
+            scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+
     <inertial>
       <mass value="${motor_mass}"/>
       <xacro:cylinder_inertia mass="${motor_mass}" r="0.006" h="0.0405"/>
@@ -362,6 +372,7 @@
   <sensor name="lidar_sensor" type="gpu_lidar">
     <pose>0 0 0 0 0 0</pose>
     <topic>scan</topic>
+    <gz_frame_id>lidar_link</gz_frame_id>
     <update_rate>10</update_rate>
     <lidar>
       <scan>
